@@ -49,6 +49,7 @@ logs:
     lines: 100
 artifacts:
   - "/etc/nginx/nginx.conf"
+```
 
 # Incident Response & Diagnostic Bundler 🛠️
 
