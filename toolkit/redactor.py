@@ -6,8 +6,8 @@ from pathlib import Path
 PATTERNS = {
     "IPV4": r"\b(?:\d{1,3}\.){3}\d{1,3}\b",
     "EMAIL": r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-]+",
-    # Matches common API key/token formats and variable assignments
-    "API_KEY": r"(?i)(?:api[_-]?key|secret|token|password)[\s:=]+[\"']?[a-zA-Z0-9\-_]{16,}[\"']?"
+    # Added 'bearer' to the list of keywords to catch Authorization headers
+    "API_KEY": r"(?i)(?:api[_-]?key|secret|token|password|bearer)[\s:=]+[\"']?[a-zA-Z0-9\-_]{16,}[\"']?"
 }
 
 def redact_text(text: str) -> str:
