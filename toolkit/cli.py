@@ -9,6 +9,8 @@ from toolkit.gatherer import (
     STAGING_DIR
 )
 from toolkit.redactor import redact_directory
+from toolkit.bundler import create_bundle, clean_staging
+
 
 app = typer.Typer(help="Incident Response & Diagnostic Bundler")
 
@@ -54,9 +56,31 @@ def redact():
     typer.secho("Success: Manual redaction complete.", fg=typer.colors.GREEN)
 
 @app.command()
-def bundle():
+def bundle(keep_staging: bool = typer.Option(False, "--keep", help="Keep the staging directory after bundling.")):
     """Bundle artifacts into a shareable archive."""
-    typer.echo("Bundling artifacts...")
+    typer.echo("Bundling artifacts into a shareable archive...")
+    try:
+        archive_path = create_bundle()
+        typer.secho(f"Success: Created incident bundle at {archive_path.absolute()}", fg=typer.colors.GREEN)
+        
+        if not keep_staging:
+            clean_staging()
+            typer.echo("Cleaned up temporary staging area.")
+            
+    except FileNotFoundError as e:
+        typer.secho(f"Error: {e}", fg=typer.colors.RED)
+        raise typer.Exit(1)
+    except Exception as e:
+        typer.secho(f"Unexpected error during bundling: {e}", fg=typer.colors.RED)
+        raise typer.Exit(1)
+
+@app.command()
+def report():
+    """Generate a standardized post-incident report."""
+    typer.echo("Generating post-incident report...")
+
+if __name__ == "__main__":
+    app()
 
 @app.command()
 def report():
