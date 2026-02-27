@@ -1,6 +1,8 @@
 import psutil
 from datetime import datetime
 from pathlib import Path
+import yaml
+import shutil
 
 # We will store all collected artifacts here before bundling
 STAGING_DIR = Path(".staging")
@@ -69,3 +71,39 @@ def tail_log_file(filepath: str, lines: int = 100):
         f.writelines(content[-lines:])
         
     return output_file
+
+def parse_config(config_path: str):
+    """Parses the YAML configuration file."""
+    path = Path(config_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Config file not found: {config_path}")
+    
+    with open(path, "r", encoding="utf-8") as f:
+        return yaml.safe_load(f)
+
+def gather_files_from_config(config: dict):
+    """Tails logs and copies config files based on YAML."""
+    ensure_staging_dir()
+    
+    # 1. Tail logs
+    logs = config.get("logs", [])
+    for log_file in logs:
+        try:
+            path = log_file.get("path")
+            lines = log_file.get("lines", 100)
+            if path:
+                tail_log_file(path, lines)
+        except Exception as e:
+            print(f"Warning: Could not tail {log_file.get('path')}: {e}")
+
+    # 2. Copy static config artifacts
+    artifacts = config.get("artifacts", [])
+    for artifact in artifacts:
+        try:
+            src = Path(artifact)
+            if src.exists() and src.is_file():
+                shutil.copy2(src, STAGING_DIR / src.name)
+            else:
+                print(f"Warning: Artifact not found or not a file: {artifact}")
+        except Exception as e:
+            print(f"Warning: Could not copy {artifact}: {e}")
