@@ -14,7 +14,7 @@ A lightweight, robust CLI toolkit designed to gather system health signals, reda
 
 1. Clone the repository:
    ```bash
-   git clone [https://github.com/YOUR_USERNAME/incident-runbook-toolkit.git](https://github.com/YOUR_USERNAME/incident-runbook-toolkit.git)
+   git clone [https://github.com/venkatasivanaga/incident-runbook-toolkit.git](https://github.com/venkatasivanaga/incident-runbook-toolkit.git)
    cd incident-runbook-toolkit
 
    ```
