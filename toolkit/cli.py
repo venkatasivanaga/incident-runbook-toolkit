@@ -10,6 +10,8 @@ from toolkit.gatherer import (
 )
 from toolkit.redactor import redact_directory
 from toolkit.bundler import create_bundle, clean_staging
+from datetime import datetime
+from toolkit.reporter import generate_report
 
 
 app = typer.Typer(help="Incident Response & Diagnostic Bundler")
@@ -75,9 +77,46 @@ def bundle(keep_staging: bool = typer.Option(False, "--keep", help="Keep the sta
         raise typer.Exit(1)
 
 @app.command()
-def report():
+def report(
+    output_format: str = typer.Option("markdown", "--format", "-f", help="Output format: markdown or json")
+):
     """Generate a standardized post-incident report."""
-    typer.echo("Generating post-incident report...")
+    typer.echo("--- Post-Incident Report Generator ---")
+    typer.echo("Please provide the following details (press Enter to skip optional fields):")
+    
+    # Input validation: Lead name is required
+    lead = typer.prompt("Incident Lead Name")
+    while not lead.strip():
+        typer.secho("Error: Incident Lead cannot be empty.", fg=typer.colors.RED)
+        lead = typer.prompt("Incident Lead Name")
+        
+    severity = typer.prompt("Severity (e.g., SEV-1, SEV-2)", default="SEV-3")
+    summary = typer.prompt("Executive Summary")
+    impact = typer.prompt("Impact Details")
+    timeline = typer.prompt("Timeline of Events")
+    cause = typer.prompt("Suspected Cause")
+    actions = typer.prompt("Corrective Actions")
+    
+    data = {
+        "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "lead": lead,
+        "severity": severity,
+        "summary": summary,
+        "impact_details": impact,
+        "timeline": timeline,
+        "cause": cause,
+        "actions": actions
+    }
+    
+    try:
+        output_path = generate_report(data, output_format)
+        typer.secho(f"\nSuccess: Report generated at {output_path.absolute()}", fg=typer.colors.GREEN)
+    except Exception as e:
+        typer.secho(f"\nError generating report: {e}", fg=typer.colors.RED)
+        raise typer.Exit(1)
+
+if __name__ == "__main__":
+    app()
 
 if __name__ == "__main__":
     app()
